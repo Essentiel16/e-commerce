@@ -9,7 +9,7 @@ const {
 const { constants } = require('../utils');
 
 const {
-  OOPS, FAIL, PRODUCT, CREATED, ACTION_SUCCESS,
+  OOPS, FAIL, SUCCESS, PRODUCT, CREATED, FETCH, DELETED, RATED, UPDATED, ACTION_SUCCESS,
 } = constants;
 
 const createProduct = async (req, res) => {
@@ -19,7 +19,7 @@ const createProduct = async (req, res) => {
     res
       .status(201)
       .json({
-        status: 'success',
+        status: SUCCESS,
         message: ACTION_SUCCESS(PRODUCT, CREATED),
         data: product,
       });
@@ -32,9 +32,9 @@ const getProduct = async (req, res) => {
   try {
     res
       .status(200)
-      .json({ status: 'success', message: 'Product has been fetched.', data: req.product });
+      .json({ status: SUCCESS, message: ACTION_SUCCESS(PRODUCT, FETCH), data: req.product });
   } catch (error) {
-    res.status(500).json({ status: 'fail', message: 'Oops! It\'s not you, it\'s us. Pls try again' });
+    res.status(500).json({ status: FAIL, message: OOPS });
   }
 };
 
@@ -42,14 +42,14 @@ const allProducts = async (req, res) => {
   try {
     const productList = await displayAllProducts();
     res.status(200).json({
-      status: 'success',
-      message: 'Products fetched successfully.',
+      status: SUCCESS,
+      message: ACTION_SUCCESS(PRODUCT, FETCH),
       data: productList,
     });
   } catch (error) {
     res.status(500).json({
-      status: 'fail',
-      message: 'Oops! It\'s not you, it\'s us. Pls try again',
+      status: FAIL,
+      message: OOPS,
     });
   }
 };
@@ -57,9 +57,11 @@ const allProducts = async (req, res) => {
 const deleteSelectedProduct = async (req, res) => {
   try {
     await deleteProduct(req.product.id);
-    res.status(200).json({ status: 'success', message: 'Product has been deleted' });
+    res.status(200).json({
+      status: SUCCESS, message: ACTION_SUCCESS(PRODUCT, DELETED),
+    });
   } catch (error) {
-    res.status(500).json({ status: 'fail', message: 'Oops! It\'s not you, it\'s us. Pls try again' });
+    res.status(500).json({ status: FAIL, message: OOPS });
   }
 };
 
@@ -67,15 +69,15 @@ const rateProduct = async (req, res) => {
   try {
     const updatedRating = await rateAProduct(req.product, req.body.rating, req.user.id);
     return res.status(200).json({
-      status: 'success',
-      message: 'Product rating updated successfully',
+      status: SUCCESS,
+      message: ACTION_SUCCESS(PRODUCT, RATED),
       data: updatedRating,
     });
   } catch (error) {
     // console.log(error);
     return res.status(500).json({
-      status: 'fail',
-      message: 'Oops! It\'s not you, it\'s us. Pls try again',
+      status: FAIL,
+      message: OOPS,
     });
   }
 };
@@ -83,9 +85,13 @@ const rateProduct = async (req, res) => {
 const modifyProduct = async (req, res) => {
   try {
     const updatedProduct = await updateProductById(req.product, req.body);
-    res.status(200).json({ status: 'success', message: 'Product has been updated', data: updatedProduct });
+    res.status(200).json({
+      status: SUCCESS,
+      message: ACTION_SUCCESS(PRODUCT, UPDATED),
+      data: updatedProduct,
+    });
   } catch (error) {
-    res.status(500).json({ status: 'fail', message: 'Oops! It\'s not you, it\'s us. Pls try again' });
+    res.status(500).json({ status: FAIL, message: OOPS });
   }
 };
 
